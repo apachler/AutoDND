@@ -14,7 +14,7 @@ def next_weekday(weekday:int,start:datetime,end:datetime)->Tuple[datetime,dateti
     delta:int = weekday-current.weekday()
     if delta<0 or (delta==0 and end<=current):
         delta+=7
-    return start.replace(day=start.day+delta),end.replace(day=end.day+delta)
+    return start+timedelta(days=delta),end+timedelta(days=delta)
 
 def create_datetime(time:str)->datetime:
     current:datetime=get_now()

@@ -9,4 +9,4 @@ Homepage: https://github.com/RikyIsola/AutoDND
 Package: autodnd
 Architecture: any
 Description: Add schedule to the gnome do not disturb
-Depends: coreutils, python3.8, libglib2.0-bin
+Depends: coreutils, python (>= 3.8), libglib2.0-bin
