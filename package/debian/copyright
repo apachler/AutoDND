@@ -1,6 +1,0 @@
-Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: open-with-google
-
-Files: *
-Copyright: 2020 Riccardo Isola <riky.isola@gmail.com>
-License: GPL-3+

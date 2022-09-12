@@ -4,5 +4,5 @@ Type=Application
 Categories=Utility;
 Terminal=false
 Exec=/usr/bin/autodnd
-Name=Auto Do not Disturb
+Name=Auto Do Not Disturb
 Icon=/usr/share/icons/hicolor/192x192/autodnd.png
