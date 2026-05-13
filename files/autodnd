@@ -42,14 +42,42 @@ def create_datetime(time:str)->datetime:
         raise ValueError(f"time {time!r} out of range")
     return current.replace(hour=hour,minute=minute)
 
+DAY_NAMES={'mon':0,'tue':1,'wed':2,'thu':3,'fri':4,'sat':5,'sun':6}
+DAY_ALIASES={
+    'weekdays':[0,1,2,3,4],'weekends':[5,6],'all':[0,1,2,3,4,5,6],
+}
+
+def _to_day(key:str)->int:
+    if key in DAY_NAMES:
+        return DAY_NAMES[key]
+    try:
+        return int(key)
+    except ValueError as e:
+        raise ValueError(f"invalid day {key!r}") from e
+
+def expand_days(token:str)->List[int]:
+    result:List[int]=[]
+    for piece in token.split(','):
+        key=piece.strip().lower()
+        if not key:
+            raise ValueError(f"empty day in {token!r}")
+        if key in DAY_ALIASES:
+            result.extend(DAY_ALIASES[key])
+        elif '-' in key:
+            a,b=key.split('-',1)
+            lo,hi=_to_day(a),_to_day(b)
+            if lo>hi:
+                raise ValueError(f"reversed range {key!r}")
+            result.extend(range(lo,hi+1))
+        else:
+            result.append(_to_day(key))
+    return result
+
 def read_days(event:str)->List[Tuple[datetime,datetime]]:
     parts:List[str]=event.split()
     if len(parts)!=3:
         raise ValueError(f"expected '<days> <start> <end>', got {event!r}")
-    try:
-        days:List[int]=[int(a) for a in parts[0].split(',')]
-    except ValueError as e:
-        raise ValueError(f"invalid day list {parts[0]!r}") from e
+    days:List[int]=expand_days(parts[0])
     for d in days:
         if not 0<=d<=6:
             raise ValueError(f"day {d} out of range (0=Mon … 6=Sun)")

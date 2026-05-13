@@ -1,10 +1,16 @@
 # Copy this file to ~/.config/autodnd/config.txt
 
-# day1,day2,... start-time end-time
-# 0=mon 1=tue 2=wed 3=thu 4=fri 5=sat 6=sun
+# <days> <start-time> <end-time>
+# Days can be:
+#   numbers 0..6  (0=mon 1=tue 2=wed 3=thu 4=fri 5=sat 6=sun)
+#   names         (mon, tue, wed, thu, fri, sat, sun)
+#   ranges        (0-4, mon-fri)
+#   aliases       (weekdays, weekends, all)
+#   comma-mixed   (mon,wed,fri  or  weekdays,sat)
+# Times are HH:MM, 24-hour. end < start means the event spans midnight.
 
 # School
-0,1,2,3,4 8:00 14:00
+weekdays 8:00 14:00
 
 # Night
-0,1,2,3,4,5,6 22:00 10:00
+all 22:00 10:00
