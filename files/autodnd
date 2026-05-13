@@ -6,6 +6,7 @@ from time import sleep
 from os import environ,makedirs
 from os.path import join
 from argparse import ArgumentParser,Namespace
+from sys import stderr,exit as sys_exit
 
 debug=False
 
@@ -19,11 +20,28 @@ def next_weekday(weekday:int,start:datetime,end:datetime)->Tuple[datetime,dateti
 def create_datetime(time:str)->datetime:
     current:datetime=get_now()
     parts: List[str] = time.split(':')
-    return current.replace(hour=int(parts[0]),minute=int(parts[1]))
+    if len(parts)!=2:
+        raise ValueError(f"invalid time {time!r}, expected HH:MM")
+    try:
+        hour:int=int(parts[0])
+        minute:int=int(parts[1])
+    except ValueError as e:
+        raise ValueError(f"invalid time {time!r}") from e
+    if not (0<=hour<=23 and 0<=minute<=59):
+        raise ValueError(f"time {time!r} out of range")
+    return current.replace(hour=hour,minute=minute)
 
 def read_days(event:str)->List[Tuple[datetime,datetime]]:
-    parts:List[str]=event.split(' ')
-    days:List[int]=[int(a) for a in parts[0].split(',')]
+    parts:List[str]=event.split()
+    if len(parts)!=3:
+        raise ValueError(f"expected '<days> <start> <end>', got {event!r}")
+    try:
+        days:List[int]=[int(a) for a in parts[0].split(',')]
+    except ValueError as e:
+        raise ValueError(f"invalid day list {parts[0]!r}") from e
+    for d in days:
+        if not 0<=d<=6:
+            raise ValueError(f"day {d} out of range (0=Mon … 6=Sun)")
     result:List[Tuple[datetime,datetime]]=[]
     start:datetime=create_datetime(parts[1])
     end:datetime=create_datetime(parts[2])
@@ -38,13 +56,16 @@ def set_dnd(enabled:bool)->None:
 
 def parse_lines(lines:List[str])->List[Tuple[datetime,datetime]]:
     events:List[Tuple[datetime,datetime]]=[]
-    for line in lines:
+    for lineno,line in enumerate(lines,1):
         if '#' in line:
             line = line[:line.find('#')]
         line = line.strip()
         if len(line) == 0:
             continue
-        events.extend(read_days(line))
+        try:
+            events.extend(read_days(line))
+        except ValueError as e:
+            raise ValueError(f"line {lineno}: {e}") from e
     return events
 
 def print_events(events:List[Tuple[datetime,datetime]])->None:
@@ -67,6 +88,12 @@ def main()->None:
     open(file,'a').close()
     with open(file) as f:
         lines: List[str] = f.readlines()
+
+    try:
+        parse_lines(lines)
+    except ValueError as e:
+        print(f"autodnd: config error: {e}",file=stderr)
+        sys_exit(2)
 
     while True:
         events: List[Tuple[datetime, datetime]] = parse_lines(lines)
