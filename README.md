@@ -1,7 +1,9 @@
 # Auto Do Not Disturb
 
 [![tests](https://github.com/apachler/AutoDND/actions/workflows/test.yml/badge.svg)](https://github.com/apachler/AutoDND/actions/workflows/test.yml)
+[![lint](https://github.com/apachler/AutoDND/actions/workflows/lint.yml/badge.svg)](https://github.com/apachler/AutoDND/actions/workflows/lint.yml)
 [![codeql](https://github.com/apachler/AutoDND/actions/workflows/codeql.yml/badge.svg)](https://github.com/apachler/AutoDND/actions/workflows/codeql.yml)
+[![scorecard](https://api.securityscorecards.dev/projects/github.com/apachler/AutoDND/badge)](https://securityscorecards.dev/viewer/?uri=github.com/apachler/AutoDND)
 [![coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)](https://github.com/apachler/AutoDND/actions/workflows/test.yml)
 [![release](https://img.shields.io/github/v/release/apachler/AutoDND?display_name=tag&sort=semver)](https://github.com/apachler/AutoDND/releases)
 [![AUR](https://img.shields.io/aur/version/autodnd-git?label=AUR)](https://aur.archlinux.org/packages/autodnd-git)
