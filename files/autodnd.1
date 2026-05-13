@@ -1,0 +1,107 @@
+.TH AUTODND 1 "2026" "autodnd" "User Commands"
+.SH NAME
+autodnd \- schedule the GNOME Do Not Disturb state
+.SH SYNOPSIS
+.B autodnd
+[\fB\-d\fR] [\fB\-\-check\fR | \fB\-\-status\fR | \fB\-\-once\fR]
+.br
+.B autodnd
+\fB\-\-version\fR
+.SH DESCRIPTION
+.B autodnd
+is a small daemon that toggles the GNOME notifications
+.I show-banners
+setting on a weekly schedule, effectively turning Do Not Disturb on and off
+at user-defined times. Configuration is a plain-text file at
+.IR ~/.config/autodnd/config.txt .
+.SH OPTIONS
+.TP
+.BR \-d ", " \-\-debug
+Log at DEBUG level. Without this flag,
+.B autodnd
+logs at INFO level (every state transition, plus reload events).
+.TP
+.B \-\-check
+Parse the config file, print every expanded occurrence with start and end
+timestamps, and exit. Exit status is 2 on a malformed config; the offending
+line number is included in the error message.
+.TP
+.B \-\-status
+Print the desired Do Not Disturb state for the current minute and the time
+of the next scheduled transition, then exit.
+.TP
+.B \-\-once
+Run a single iteration of the scheduler — apply the desired state for the
+current minute via
+.BR gsettings (1)
+\(em and exit. Suitable for cron.
+.TP
+.BR \-V ", " \-\-version
+Print the version and exit.
+.SH CONFIGURATION
+Each non-comment line is one event:
+.PP
+.RS
+\fI<days>\fR \fI<start\-time>\fR \fI<end\-time>\fR
+.RE
+.PP
+.I days
+is one or more of:
+.IP \(bu 2
+numbers 0\-6, where 0 is Monday and 6 is Sunday;
+.IP \(bu
+weekday names
+.RB ( mon ", " tue ", " wed ", " thu ", " fri ", " sat ", " sun );
+.IP \(bu
+ranges
+.RB ( "0\-4" ", " "mon\-fri" );
+.IP \(bu
+aliases
+.RB ( weekdays ", " weekends ", " all );
+.IP \(bu
+any of the above comma-mixed, e.g.\&
+.BR "weekdays,sat" .
+.PP
+Times are
+.BR HH:MM ,
+24-hour. When
+.I end-time
+is earlier than
+.IR start-time ,
+the event spans midnight. Lines starting with
+.B #
+(or anything after a
+.B #
+on a line) are comments.
+.SH SIGNALS
+.TP
+.B SIGHUP
+Re-read the config file without restarting. Useful with
+.IR "systemctl --user reload autodnd" .
+.SH FILES
+.TP
+.I ~/.config/autodnd/config.txt
+Schedule configuration. Created on first run if missing.
+.TP
+.I /usr/share/autodnd/config-sample.txt
+Annotated sample config installed by the package.
+.TP
+.I /usr/lib/systemd/user/autodnd.service
+Systemd user unit installed by the package.
+.SH EXAMPLES
+Validate the config and list every expanded occurrence:
+.PP
+.RS
+.B autodnd \-\-check
+.RE
+.PP
+Run the scheduler from cron once a minute instead of as a daemon:
+.PP
+.RS
+.B * * * * *   /usr/bin/autodnd \-\-once
+.RE
+.SH SEE ALSO
+.BR gsettings (1),
+.BR systemctl (1)
+.SH AUTHOR
+Andreas Pachler <apachler@paan-systems.com>
