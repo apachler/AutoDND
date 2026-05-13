@@ -1,5 +1,10 @@
 # Auto Do Not Disturb
 
+[![tests](https://github.com/apachler/AutoDND/actions/workflows/test.yml/badge.svg)](https://github.com/apachler/AutoDND/actions/workflows/test.yml)
+[![release](https://img.shields.io/github/v/release/apachler/AutoDND?display_name=tag&sort=semver)](https://github.com/apachler/AutoDND/releases)
+[![AUR](https://img.shields.io/aur/version/autodnd-git?label=AUR)](https://aur.archlinux.org/packages/autodnd-git)
+[![license](https://img.shields.io/github/license/apachler/AutoDND)](LICENSE)
+
 A small Python daemon that turns the GNOME "Do Not Disturb" mode on and off on a
 weekly schedule — e.g. silence notifications every night between 22:00 and 10:00,
 or during a school day from 8:00 to 14:00.
