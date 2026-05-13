@@ -1,0 +1,54 @@
+name: Bug report
+description: Report something AutoDND is doing wrong
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: What did you expect vs. what actually happened?
+    validations:
+      required: true
+
+  - type: textarea
+    id: config
+    attributes:
+      label: config.txt
+      description: Paste the relevant contents of ~/.config/autodnd/config.txt.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: status
+    attributes:
+      label: Output of `autodnd --status`
+      description: Run `autodnd --status` and paste the output.
+      render: shell
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: |
+        If using the systemd unit, paste `journalctl --user -u autodnd -n 50`.
+        Otherwise, run `autodnd -d` and capture stderr.
+      render: shell
+
+  - type: input
+    id: version
+    attributes:
+      label: autodnd version
+      description: Output of `autodnd --version`, or the commit hash if running from source.
+
+  - type: input
+    id: gnome
+    attributes:
+      label: GNOME version
+      description: Output of `gnome-shell --version`.
+
+  - type: input
+    id: distro
+    attributes:
+      label: Distribution
+      description: e.g. Arch Linux, Fedora 40, Ubuntu 24.04.
