@@ -3,8 +3,8 @@ from datetime import datetime,timedelta
 from typing import List,Tuple,Optional
 from subprocess import run
 from time import sleep
-from os import environ,mkdir
-from os.path import join,exists
+from os import environ,makedirs
+from os.path import join
 from argparse import ArgumentParser,Namespace
 
 debug=False
@@ -28,7 +28,7 @@ def read_days(event:str)->List[Tuple[datetime,datetime]]:
     start:datetime=create_datetime(parts[1])
     end:datetime=create_datetime(parts[2])
     if end<start:
-        end:datetime=end.replace(day=end.day+1)
+        end:datetime=end+timedelta(days=1)
     for day in days:
         result.append(next_weekday(day,start,end))
     return result
@@ -62,11 +62,9 @@ def main()->None:
     debug=args.debug
 
     folder:str=join(environ['HOME'],'.config','autodnd')
-    if not exists(folder):
-        mkdir(folder)
+    makedirs(folder,exist_ok=True)
     file:str=join(folder,'config.txt')
-    if not exists(file):
-        open(file,'w').close()
+    open(file,'a').close()
     with open(file) as f:
         lines: List[str] = f.readlines()
 
