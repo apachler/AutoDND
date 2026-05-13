@@ -2,15 +2,20 @@
 from datetime import datetime,timedelta
 from typing import List,Tuple,Optional
 from subprocess import run
-from time import sleep
 from os import environ,makedirs
 from os.path import join
 from argparse import ArgumentParser,Namespace
 from sys import stderr,exit as sys_exit
 import logging
+import signal
+import threading
 
 log=logging.getLogger('autodnd')
 _last_state:Optional[bool]=None
+_reload_event:threading.Event=threading.Event()
+
+def _handle_sighup(signum:int,frame)->None:
+    _reload_event.set()
 
 def next_weekday(weekday:int,start:datetime,end:datetime)->List[Tuple[datetime,datetime]]:
     current:datetime=get_now()
@@ -90,23 +95,32 @@ def main()->None:
     makedirs(folder,exist_ok=True)
     file:str=join(folder,'config.txt')
     open(file,'a').close()
-    with open(file) as f:
-        lines: List[str] = f.readlines()
+    def load()->List[str]:
+        with open(file) as f:
+            data:List[str] = f.readlines()
+        try:
+            parse_lines(data)
+        except ValueError as e:
+            print(f"autodnd: config error: {e}",file=stderr)
+            sys_exit(2)
+        return data
 
-    try:
-        parse_lines(lines)
-    except ValueError as e:
-        print(f"autodnd: config error: {e}",file=stderr)
-        sys_exit(2)
+    lines:List[str] = load()
+    signal.signal(signal.SIGHUP,_handle_sighup)
 
     while True:
+        if _reload_event.is_set():
+            log.info('reloading config')
+            lines = load()
+            _reload_event.clear()
         events: List[Tuple[datetime, datetime]] = parse_lines(lines)
         for start,end in events:
             log.debug('event %s -> %s',start,end)
         delta:timedelta=execute(events)
-        sleep_time:int=delta.seconds+60*60*24*delta.days
-        log.debug('sleeping %s (%ds)',delta,sleep_time)
-        sleep(sleep_time)
+        sleep_time:float=delta.total_seconds()
+        log.debug('sleeping %s (%.0fs)',delta,sleep_time)
+        if _reload_event.wait(timeout=sleep_time):
+            log.debug('woken by SIGHUP')
 
 def desired_state(events:List[Tuple[datetime,datetime]],current:datetime)->bool:
     return any(start<=current<end for start,end in events)
