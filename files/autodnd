@@ -7,8 +7,9 @@ from os import environ,makedirs
 from os.path import join
 from argparse import ArgumentParser,Namespace
 from sys import stderr,exit as sys_exit
+import logging
 
-debug=False
+log=logging.getLogger('autodnd')
 _last_state:Optional[bool]=None
 
 def next_weekday(weekday:int,start:datetime,end:datetime)->List[Tuple[datetime,datetime]]:
@@ -73,19 +74,17 @@ def parse_lines(lines:List[str])->List[Tuple[datetime,datetime]]:
             raise ValueError(f"line {lineno}: {e}") from e
     return events
 
-def print_events(events:List[Tuple[datetime,datetime]])->None:
-    for event in events:
-        print(event[0],event[1])
-
 def get_now()->datetime:
     return datetime.now().replace(second=0,microsecond=0)
 
 def main()->None:
-    global debug
     parser:ArgumentParser=ArgumentParser()
     parser.add_argument('-d','--debug',action='store_true',default=False)
     args:Namespace=parser.parse_args()
-    debug=args.debug
+    logging.basicConfig(
+        level=logging.DEBUG if args.debug else logging.INFO,
+        format='%(asctime)s %(levelname)s %(message)s',
+    )
 
     folder:str=join(environ['HOME'],'.config','autodnd')
     makedirs(folder,exist_ok=True)
@@ -102,12 +101,11 @@ def main()->None:
 
     while True:
         events: List[Tuple[datetime, datetime]] = parse_lines(lines)
-        if debug:
-            print_events(events)
+        for start,end in events:
+            log.debug('event %s -> %s',start,end)
         delta:timedelta=execute(events)
         sleep_time:int=delta.seconds+60*60*24*delta.days
-        if debug:
-            print('Time until next event:',f'{delta}')
+        log.debug('sleeping %s (%ds)',delta,sleep_time)
         sleep(sleep_time)
 
 def desired_state(events:List[Tuple[datetime,datetime]],current:datetime)->bool:
@@ -127,6 +125,7 @@ def execute(events:List[Tuple[datetime,datetime]])->timedelta:
     current:datetime = get_now()
     state:bool = desired_state(events,current)
     if state != _last_state:
+        log.info('DnD %s',('on' if state else 'off'))
         set_dnd(state)
         _last_state = state
     transition:Optional[datetime] = next_transition(events,current)
