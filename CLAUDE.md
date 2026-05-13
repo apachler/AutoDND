@@ -87,3 +87,4 @@ The script is a single event loop in `main()` → `execute()`:
 - No external dependencies beyond the Python standard library and `gsettings`. Do not add libraries without a strong reason — the package's `depends` array in `PKGBUILD` would need updating too.
 - When changing behaviour that affects installation paths or new shipped files, update both `PKGBUILD`'s `package()` function and (if relevant) `autodnd.desktop` / `autodnd.service`.
 - The pure functions (`expand_days`, `create_datetime`, `read_days`, `next_weekday`, `desired_state`, `next_transition`, `parse_lines`) have tests in `tests/test_schedule.py`. Add tests alongside changes to these.
+- Side effects live in three places: `set_dnd` (shells out to `gsettings`), the module-level `_last_state` cache, and the `_reload_event` signal flag. Tests should stay on the pure side; if you need to exercise `execute()` directly, reset `autodnd._last_state = None` first.
