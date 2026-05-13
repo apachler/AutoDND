@@ -1,0 +1,44 @@
+# Tooling config only. The project is shipped as a single script
+# (files/autodnd) via PKGBUILD, not as a PyPI package; there is no
+# [project] table on purpose.
+
+[tool.ruff]
+line-length = 120
+target-version = "py39"
+extend-include = ["files/autodnd"]
+
+[tool.ruff.lint]
+# Bug-finding rules. Style rules (E/W) are intentionally off — the
+# script uses a deliberately terse, comma-tight annotation style.
+select = ["F", "B", "UP", "I", "PL", "RUF"]
+ignore = [
+    "PLR0912",  # too many branches — fine in main()
+    "PLR0915",  # too many statements — fine in main()
+    "PLR2004",  # magic numbers — 7 days, 6 weekdays, etc.
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["PLR2004"]
+
+[tool.mypy]
+python_version = "3.9"
+files = ["files/autodnd", "tests"]
+strict_optional = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+warn_unreachable = true
+# The script is loaded via SourceFileLoader in tests; mypy follows
+# imports normally.
+ignore_missing_imports = false
+
+[tool.coverage.run]
+include = ["files/autodnd"]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "if __name__ ?== ?['\"]__main__['\"] ?:",
+    "raise NotImplementedError",
+]
+fail_under = 80
+show_missing = true
