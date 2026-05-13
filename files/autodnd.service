@@ -1,0 +1,14 @@
+[Unit]
+Description=Auto Do Not Disturb scheduler
+PartOf=graphical-session.target
+After=graphical-session.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/autodnd
+ExecReload=/bin/kill -HUP $MAINPID
+Restart=on-failure
+RestartSec=5s
+
+[Install]
+WantedBy=graphical-session.target

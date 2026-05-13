@@ -29,5 +29,6 @@ package() {
         install -Dm755 "files/autodnd" "$pkgdir/usr/bin/autodnd"
         install -Dm644 "files/autodnd.png" "$pkgdir/usr/share/icons/hicolor/192x192/autodnd.png"
         install -Dm644 "files/autodnd.desktop" "$pkgdir/usr/share/applications/autodnd.desktop"
+        install -Dm644 "files/autodnd.service" "$pkgdir/usr/lib/systemd/user/autodnd.service"
         install -Dm644 "files/config-sample.txt" "$pkgdir/usr/share/${pkgname%-git}/config-sample.txt"
 }
