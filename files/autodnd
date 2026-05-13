@@ -9,13 +9,18 @@ from argparse import ArgumentParser,Namespace
 from sys import stderr,exit as sys_exit
 
 debug=False
+_last_state:Optional[bool]=None
 
-def next_weekday(weekday:int,start:datetime,end:datetime)->Tuple[datetime,datetime]:
+def next_weekday(weekday:int,start:datetime,end:datetime)->List[Tuple[datetime,datetime]]:
     current:datetime=get_now()
     delta:int = weekday-current.weekday()
     if delta<0 or (delta==0 and end<=current):
         delta+=7
-    return start+timedelta(days=delta),end+timedelta(days=delta)
+    occurrences:List[Tuple[datetime,datetime]]=[(start+timedelta(days=delta),end+timedelta(days=delta))]
+    prev_end:datetime=end+timedelta(days=delta-7)
+    if prev_end>current:
+        occurrences.insert(0,(start+timedelta(days=delta-7),prev_end))
+    return occurrences
 
 def create_datetime(time:str)->datetime:
     current:datetime=get_now()
@@ -48,7 +53,7 @@ def read_days(event:str)->List[Tuple[datetime,datetime]]:
     if end<start:
         end:datetime=end+timedelta(days=1)
     for day in days:
-        result.append(next_weekday(day,start,end))
+        result.extend(next_weekday(day,start,end))
     return result
 
 def set_dnd(enabled:bool)->None:
@@ -105,23 +110,29 @@ def main()->None:
             print('Time until next event:',f'{delta}')
         sleep(sleep_time)
 
-def execute(events:List[Tuple[datetime,datetime]])->timedelta:
-    if len(events)==0:
-        exit(0)
-    next_event:Optional[datetime]=None
-    current:datetime = get_now()
-    for event in events:
-        end=event[1]+timedelta(minutes=1)
-        if event[0] <= current < event[1]:
-            set_dnd(True)
-        elif event[1] <= current <= end:
-            set_dnd(False)
+def desired_state(events:List[Tuple[datetime,datetime]],current:datetime)->bool:
+    return any(start<=current<end for start,end in events)
 
-        if event[0]>current and (next_event is None or event[0]-current<next_event-current):
-            next_event=event[0]
-        if event[1]>current and (next_event is None or event[1]-current<next_event-current):
-            next_event=event[1]
-    return (next_event-datetime.now())+timedelta(seconds=5)
+def next_transition(events:List[Tuple[datetime,datetime]],current:datetime)->Optional[datetime]:
+    boundaries:List[datetime]=[]
+    for start,end in events:
+        if start>current: boundaries.append(start)
+        if end>current: boundaries.append(end)
+    return min(boundaries) if boundaries else None
+
+def execute(events:List[Tuple[datetime,datetime]])->timedelta:
+    global _last_state
+    if len(events)==0:
+        sys_exit(0)
+    current:datetime = get_now()
+    state:bool = desired_state(events,current)
+    if state != _last_state:
+        set_dnd(state)
+        _last_state = state
+    transition:Optional[datetime] = next_transition(events,current)
+    if transition is None:
+        return timedelta(hours=1)
+    return (transition-datetime.now())+timedelta(seconds=5)
 
 if __name__=='__main__':
     main()
