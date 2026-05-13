@@ -5,6 +5,12 @@ __pycache__/
 .python-version
 pypi.txt
 
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+coverage.xml
+
 # Environments
 .env
 .venv
