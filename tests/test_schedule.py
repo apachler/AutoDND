@@ -5,10 +5,10 @@ import pathlib
 import sys
 import tempfile
 import unittest
-from contextlib import redirect_stdout, redirect_stderr
+from contextlib import redirect_stderr, redirect_stdout
 from datetime import datetime, timedelta
 from importlib.machinery import SourceFileLoader
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 _path = pathlib.Path(__file__).resolve().parent.parent / 'files' / 'autodnd'
 _loader = SourceFileLoader('autodnd', str(_path))

@@ -15,6 +15,8 @@ ignore = [
     "PLR0912",  # too many branches — fine in main()
     "PLR0915",  # too many statements — fine in main()
     "PLR2004",  # magic numbers — 7 days, 6 weekdays, etc.
+    "PLW0603",  # `global _last_state` is the intentional state-cache pattern
+    "PLW2901",  # `line` reassigned inside parse_lines loop is intentional
 ]
 
 [tool.ruff.lint.per-file-ignores]
