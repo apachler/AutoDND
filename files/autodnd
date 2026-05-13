@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 from datetime import datetime,timedelta
-from typing import List,Tuple,NoReturn,Optional
+from typing import List,Tuple,Optional
 from subprocess import run
 from time import sleep
 from os import environ,mkdir
@@ -33,7 +33,7 @@ def read_days(event:str)->List[Tuple[datetime,datetime]]:
         result.append(next_weekday(day,start,end))
     return result
 
-def set_dnd(enabled:bool)->NoReturn:
+def set_dnd(enabled:bool)->None:
     run(['gsettings','set','org.gnome.desktop.notifications','show-banners',str(not enabled).lower()],check=True)
 
 def parse_lines(lines:List[str])->List[Tuple[datetime,datetime]]:
@@ -47,14 +47,14 @@ def parse_lines(lines:List[str])->List[Tuple[datetime,datetime]]:
         events.extend(read_days(line))
     return events
 
-def print_events(events:List[Tuple[datetime,datetime]])->NoReturn:
+def print_events(events:List[Tuple[datetime,datetime]])->None:
     for event in events:
         print(event[0],event[1])
 
 def get_now()->datetime:
     return datetime.now().replace(second=0,microsecond=0)
 
-def main():
+def main()->None:
     global debug
     parser:ArgumentParser=ArgumentParser()
     parser.add_argument('-d','--debug',action='store_true',default=False)
@@ -84,7 +84,7 @@ def execute(events:List[Tuple[datetime,datetime]])->timedelta:
     if len(events)==0:
         exit(0)
     next_event:Optional[datetime]=None
-    current = get_now()
+    current:datetime = get_now()
     for event in events:
         end=event[1]+timedelta(minutes=1)
         if event[0] <= current < event[1]:
