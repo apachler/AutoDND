@@ -86,7 +86,7 @@ def read_days(event:str)->list[tuple[datetime,datetime]]:
     start:datetime=create_datetime(parts[1])
     end:datetime=create_datetime(parts[2])
     if end<start:
-        end:datetime=end+timedelta(days=1)
+        end=end+timedelta(days=1)
     for day in days:
         result.extend(next_weekday(day,start,end))
     return result
@@ -167,7 +167,7 @@ def main()->None:
             log.info('reloading config')
             lines = load()
             _reload_event.clear()
-        events: list[tuple[datetime, datetime]] = parse_lines(lines)
+        events = parse_lines(lines)
         for start,end in events:
             log.debug('event %s -> %s',start,end)
         delta:timedelta=execute(events)

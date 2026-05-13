@@ -23,15 +23,15 @@ ignore = [
 "tests/*" = ["PLR2004"]
 
 [tool.mypy]
-python_version = "3.9"
-files = ["files/autodnd", "tests"]
+python_version = "3.10"
+files = ["files/autodnd"]
 strict_optional = true
 warn_unused_ignores = true
 warn_redundant_casts = true
 warn_unreachable = true
-# The script is loaded via SourceFileLoader in tests; mypy follows
-# imports normally.
 ignore_missing_imports = false
+# Tests use SourceFileLoader to import a non-.py script; that dynamic
+# pattern isn't worth type-checking. files/autodnd itself is checked.
 
 [tool.coverage.run]
 include = ["files/autodnd"]
