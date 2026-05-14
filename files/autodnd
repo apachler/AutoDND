@@ -130,9 +130,9 @@ def main()->None:
     folder:str=join(environ['HOME'],'.config','autodnd')
     makedirs(folder,exist_ok=True)
     file:str=join(folder,'config.txt')
-    open(file,'a').close()
+    open(file,'a',encoding='utf-8').close()
     def load()->list[str]:
-        with open(file) as f:
+        with open(file,encoding='utf-8') as f:
             data:list[str] = f.readlines()
         try:
             parse_lines(data)
