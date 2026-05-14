@@ -188,15 +188,18 @@ class SetDnd(unittest.TestCase):
     @patch('autodnd.run')
     def test_enabled_passes_show_banners_false(self, mock_run):
         autodnd.set_dnd(True)
-        mock_run.assert_called_once()
-        args = mock_run.call_args[0][0]
-        self.assertEqual(args[-1], 'false')
+        mock_run.assert_called_once_with(
+            ['gsettings','set','org.gnome.desktop.notifications','show-banners','false'],
+            check=True,
+        )
 
     @patch('autodnd.run')
     def test_disabled_passes_show_banners_true(self, mock_run):
         autodnd.set_dnd(False)
-        args = mock_run.call_args[0][0]
-        self.assertEqual(args[-1], 'true')
+        mock_run.assert_called_once_with(
+            ['gsettings','set','org.gnome.desktop.notifications','show-banners','true'],
+            check=True,
+        )
 
 
 class GetNow(unittest.TestCase):
@@ -252,9 +255,14 @@ class Execute(unittest.TestCase):
 
     @patch('autodnd.set_dnd')
     def test_returns_positive_delta_to_next_transition(self, mock_set_dnd):
-        at(datetime(2026, 5, 13, 12, 0))
+        # execute() uses real datetime.now() for its final sleep-delta;
+        # pin it alongside get_now() so the test isn't wall-clock-dependent.
+        pinned = datetime(2026, 5, 13, 12, 0)
+        at(pinned)
         events = autodnd.parse_lines(['weekdays 22:00 10:00'])
-        delta = autodnd.execute(events)
+        with patch.object(autodnd, 'datetime') as mock_dt:
+            mock_dt.now.return_value = pinned
+            delta = autodnd.execute(events)
         self.assertGreater(delta.total_seconds(), 0)
 
 
