@@ -15,6 +15,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+      - name: Verify tag matches __version__
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          code="$(grep -oP "^__version__='\K[^']+" files/autodnd)"
+          if [ "$tag" != "$code" ]; then
+            echo "::error::tag '$GITHUB_REF_NAME' does not match files/autodnd __version__='$code'"
+            exit 1
+          fi
       - name: Create GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
