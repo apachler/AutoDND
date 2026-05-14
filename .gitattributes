@@ -1,0 +1,11 @@
+# Normalize all text files to LF in the repository.
+# Windows contributors checking out the repo will get LF locally too,
+# which matters for files that must be LF on disk:
+#   - files/autodnd (shebang script)
+#   - files/autodnd.service (systemd unit)
+#   - files/autodnd.desktop (XDG desktop entry)
+#   - PKGBUILD (bash, run by makepkg)
+* text=auto eol=lf
+
+# Binary assets — never touch line endings.
+*.png binary
