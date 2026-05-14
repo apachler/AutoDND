@@ -61,18 +61,6 @@ Conventions:
 
 ## P2 — Worth doing when convenient
 
-### Smoke-test the script end-to-end in CI
-
-- **Rationale:** Unit tests cover pure functions; nothing currently exercises
-  `python files/autodnd --check` against a real config file in CI. A typo in
-  argparse setup or stdlib import would slip past.
-- **Implementation:** Add a CI step:
-  `python files/autodnd --check < <(printf 'weekdays 22:00 10:00\n')` or
-  similar with `HOME=$RUNNER_TEMP/home`.
-- **Impact:** Catches regressions in the CLI surface and the config-bootstrap
-  code (`makedirs`, `open(file, 'a')`).
-- **Effort:** S.
-
 ### Build provenance attestation for release tarballs
 
 - **Rationale:** Improves Scorecard "Signed-Releases"; distros that consume
@@ -122,18 +110,6 @@ Conventions:
   before checkout — read its source and pin to SHA before adopting.
 - **Effort:** S.
 
-### Mock `gsettings` and exercise `set_dnd` in tests
-
-- **Rationale:** `set_dnd` is the only fully untested code path. Coverage is
-  91% mostly because of the daemon main-loop body, but `set_dnd` itself is
-  also currently untested.
-- **Implementation:** `unittest.mock.patch('autodnd.run')`; assert it's
-  called with `['gsettings','set','org.gnome.desktop.notifications',
-  'show-banners','false']` when `enabled=True`.
-- **Impact:** Locks the inverted-flag behaviour; prevents regressions in
-  the one place the script actually shells out.
-- **Effort:** XS.
-
 ### `Makefile` (or `justfile`) for common tasks
 
 - **Rationale:** `make test`, `make lint`, `make fmt`, `make package` is a
@@ -141,14 +117,6 @@ Conventions:
 - **Implementation:** Tiny Makefile wrapping the commands already in
   CONTRIBUTING.md.
 - **Impact:** Lower onboarding friction.
-- **Effort:** XS.
-
-### Add `encoding='utf-8'` to `open()` calls in `files/autodnd`
-
-- **Rationale:** Python 3.10+ emits an `EncodingWarning` in `-X warn_default_encoding`
-  mode for `open()` without `encoding`; PEP 597 hints the default may change.
-  Cheap forward-compat win.
-- **Impact:** Future-proofing.
 - **Effort:** XS.
 
 ---
